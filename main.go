@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"vayer-electric-backend/db"
 	"vayer-electric-backend/env"
 	"vayer-electric-backend/gracefulserver"
 
@@ -40,6 +41,13 @@ func main() {
 	defer func() { fmt.Printf("bye") }()
 
 	mainCtx := getMainContext()
+
+	src := db.GetDbSource()
+	err := src.Migrate("./migrations")
+
+	if err != nil {
+		panic(err)
+	}
 
 	r := chi.NewRouter()
 
