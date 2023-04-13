@@ -10,6 +10,7 @@ import (
 	"vayer-electric-backend/db"
 	"vayer-electric-backend/env"
 	"vayer-electric-backend/gracefulserver"
+	"vayer-electric-backend/handler"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -51,9 +52,33 @@ func main() {
 
 	r := chi.NewRouter()
 
-    server := gracefulserver.New(&http.Server{
+	server := gracefulserver.New(&http.Server{
 		Addr:    fmt.Sprintf(":%d", httpPort),
 		Handler: r,
+	})
+
+	r.Route("/api", func(r chi.Router) {
+		r.Route("/products", func(r chi.Router) {
+			r.Get("/", handler.GetProducts())
+			r.Get("/{id}", handler.GetProductById())
+			r.Post("/", handler.CreateProduct())
+			r.Put("/{id}", handler.UpdateProduct())
+			r.Delete("/{id}", handler.DeleteProduct())
+		})
+		r.Route("/categories", func(r chi.Router) {
+			r.Get("/", handler.GetCategories())
+			r.Get("/{id}", handler.GetCategoryById())
+			r.Post("/", handler.CreateCategory())
+			r.Put("/{id}", handler.UpdateCategory())
+			r.Delete("/{id}", handler.DeleteCategory())
+		})
+		r.Route("/subcategories", func(r chi.Router) {
+			r.Get("/", handler.GetSubcategories())
+			r.Get("/{id}", handler.GetSubcategoryById())
+			r.Post("/", handler.CreateSubcategory())
+			r.Put("/{id}", handler.UpdateSubcategory())
+			r.Delete("/{id}", handler.DeleteSubcategory())
+		})
 	})
 
 	if err := server.StartListening(mainCtx); err != nil {
