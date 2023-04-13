@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"vayer-electric-backend/db"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func GetCategories() http.HandlerFunc {
@@ -26,38 +28,14 @@ func GetCategories() http.HandlerFunc {
 
 func GetCategoryById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		id := chi.URLParam(r, "id")
 
-		var body struct {
-			Id string `json:"id"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
-
-		id := body.Id
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+		dbs := db.GetDbSource()
 		category, err := dbs.GetCategoryById(parsedId)
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
@@ -67,31 +45,7 @@ func GetCategoryById() http.HandlerFunc {
 
 func GetCategoryByName() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		var body struct {
-			Name string `json:"name"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Name = strings.TrimSpace(body.Name)
-
-		name := body.Name
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		name := chi.URLParam(r, "name")
 
 		dbs := db.GetDbSource()
 		category, err := dbs.GetCategoryByName(name)
@@ -197,31 +151,7 @@ func UpdateCategory() http.HandlerFunc {
 
 func DeleteCategory() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		var body struct {
-			Id string `json:"id"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
-
-		id := body.Id
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		id := chi.URLParam(r, "id")
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
@@ -232,11 +162,9 @@ func DeleteCategory() http.HandlerFunc {
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 	}
 }
-
-// subcategory
 
 func GetSubcategories() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -254,31 +182,7 @@ func GetSubcategories() http.HandlerFunc {
 
 func GetSubcategoryById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		var body struct {
-			Id string `json:"id"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
-
-		id := body.Id
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		id := chi.URLParam(r, "id")
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
@@ -393,31 +297,7 @@ func UpdateSubcategory() http.HandlerFunc {
 
 func DeleteSubcategory() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		var body struct {
-			Id string `json:"id"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
-
-		id := body.Id
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		id := chi.URLParam(r, "id")
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
@@ -428,37 +308,13 @@ func DeleteSubcategory() http.HandlerFunc {
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
 func GetSubcategoriesByCategoryId() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		var body struct {
-			Id string `json:"id"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
-
-		id := body.Id
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		id := chi.URLParam(r, "id")
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
@@ -489,31 +345,7 @@ func GetProducts() http.HandlerFunc {
 
 func GetProductById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		var body struct {
-			Id string `json:"id"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
-
-		id := body.Id
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		id := chi.URLParam(r, "id")
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
@@ -530,31 +362,7 @@ func GetProductById() http.HandlerFunc {
 
 func GetProductsBySubcategoryId() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		var body struct {
-			Id string `json:"id"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
-
-		id := body.Id
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		id := chi.URLParam(r, "id")
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
@@ -703,31 +511,7 @@ func UpdateProduct() http.HandlerFunc {
 
 func DeleteProduct() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
-		if err != nil {
-			fmt.Printf("failed to read body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		var body struct {
-			Id string `json:"id"`
-		}
-		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
-
-		id := body.Id
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
+		id := chi.URLParam(r, "id")
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
