@@ -280,3 +280,32 @@ func (s DbSource) GetCategoryByName(name string) (stucts.Category, error) {
 
 	return category, nil
 }
+
+func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]stucts.Subcategory, error) {
+	rows, err := s.conn.Query("SELECT * FROM subcategories WHERE category_id = $1", category_id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	subcategories := make([]stucts.Subcategory, 0)
+
+	for rows.Next() {
+		var subcategory stucts.Subcategory
+		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		subcategories = append(subcategories, subcategory)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return subcategories, nil
+}
