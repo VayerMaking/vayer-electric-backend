@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"vayer-electric-backend/db"
-	"vayer-electric-backend/stucts"
 )
 
 func GetCategories() http.HandlerFunc {
@@ -582,12 +581,12 @@ func CreateProduct() http.HandlerFunc {
 		var body struct {
 			Name             string `json:"name"`
 			Description      string `json:"description"`
-			Price            string `json:"price"`
 			SubcategoryId    string `json:"subcategoryId"`
+			Price            string `json:"price"`
 			CurrentInventory string `json:"currentInventory"`
 			Image            string `json:"image"`
-			SKU              string `json:"sku"`
 			Brand            string `json:"brand"`
+			SKU              string `json:"sku"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
 			fmt.Printf("failed to unmarshal body")
@@ -598,21 +597,21 @@ func CreateProduct() http.HandlerFunc {
 		// Trim input
 		body.Name = strings.TrimSpace(body.Name)
 		body.Description = strings.TrimSpace(body.Description)
-		body.Price = strings.TrimSpace(body.Price)
 		body.SubcategoryId = strings.TrimSpace(body.SubcategoryId)
+		body.Price = strings.TrimSpace(body.Price)
 		body.CurrentInventory = strings.TrimSpace(body.CurrentInventory)
 		body.Image = strings.TrimSpace(body.Image)
-		body.SKU = strings.TrimSpace(body.SKU)
 		body.Brand = strings.TrimSpace(body.Brand)
+		body.SKU = strings.TrimSpace(body.SKU)
 
 		name := body.Name
 		description := body.Description
-		price := body.Price
 		subcategoryId := body.SubcategoryId
+		price := body.Price
 		currentInventory := body.CurrentInventory
 		image := body.Image
-		sku := body.SKU
 		brand := body.Brand
+		sku := body.SKU
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -621,7 +620,9 @@ func CreateProduct() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedSubcategoryCategoryId, err := strconv.Atoi(subcategoryId)
-		err = dbs.InsertProduct(name, description, price, parsedSubcategoryCategoryId, currentInventory, image, sku, brand)
+		parsedPrice, err := strconv.ParseFloat(price, 64)
+		parsedCurrentInventory, err := strconv.Atoi(currentInventory)
+		err = dbs.InsertProduct(name, description, parsedSubcategoryCategoryId, parsedPrice, parsedCurrentInventory, image, brand, sku)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -629,5 +630,114 @@ func CreateProduct() http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusCreated)
+	}
+}
+
+func UpdateProduct() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		raw, err := io.ReadAll(r.Body)
+		if err != nil {
+			fmt.Printf("failed to read body")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		var body struct {
+			Id               string `json:"id"`
+			Name             string `json:"name"`
+			Description      string `json:"description"`
+			SubcategoryId    string `json:"subcategoryId"`
+			Price            string `json:"price"`
+			CurrentInventory string `json:"currentInventory"`
+			Image            string `json:"image"`
+			Brand            string `json:"brand"`
+			SKU              string `json:"sku"`
+		}
+		if err := json.Unmarshal(raw, &body); err != nil {
+			fmt.Printf("failed to unmarshal body")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// Trim input
+		body.Id = strings.TrimSpace(body.Id)
+		body.Name = strings.TrimSpace(body.Name)
+		body.Description = strings.TrimSpace(body.Description)
+		body.SubcategoryId = strings.TrimSpace(body.SubcategoryId)
+		body.Price = strings.TrimSpace(body.Price)
+		body.CurrentInventory = strings.TrimSpace(body.CurrentInventory)
+		body.Image = strings.TrimSpace(body.Image)
+		body.Brand = strings.TrimSpace(body.Brand)
+		body.SKU = strings.TrimSpace(body.SKU)
+
+		id := body.Id
+		name := body.Name
+		description := body.Description
+		subcategoryId := body.SubcategoryId
+		price := body.Price
+		currentInventory := body.CurrentInventory
+		image := body.Image
+		brand := body.Brand
+		sku := body.SKU
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		dbs := db.GetDbSource()
+		parsedId, err := strconv.Atoi(id)
+		parsedSubcategoryCategoryId, err := strconv.Atoi(subcategoryId)
+		parsedPrice, err := strconv.ParseFloat(price, 64)
+		parsedCurrentInventory, err := strconv.Atoi(currentInventory)
+		err = dbs.UpdateProduct(parsedId, name, description, parsedSubcategoryCategoryId, parsedPrice, parsedCurrentInventory, image, brand, sku)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func DeleteProduct() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		raw, err := io.ReadAll(r.Body)
+		if err != nil {
+			fmt.Printf("failed to read body")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		var body struct {
+			Id string `json:"id"`
+		}
+		if err := json.Unmarshal(raw, &body); err != nil {
+			fmt.Printf("failed to unmarshal body")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// Trim input
+		body.Id = strings.TrimSpace(body.Id)
+
+		id := body.Id
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		dbs := db.GetDbSource()
+		parsedId, err := strconv.Atoi(id)
+		err = dbs.DeleteProduct(parsedId)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
