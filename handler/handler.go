@@ -209,7 +209,7 @@ func CreateSubcategory() http.HandlerFunc {
 		var body struct {
 			Name        string `json:"name"`
 			Description string `json:"description"`
-			CategoryId  string `json:"categoryId"`
+			CategoryId  string `json:"category_id"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
 			fmt.Printf("failed to unmarshal body")
@@ -257,7 +257,7 @@ func UpdateSubcategory() http.HandlerFunc {
 			Id          string `json:"id"`
 			Name        string `json:"name"`
 			Description string `json:"description"`
-			CategoryId  string `json:"categoryId"`
+			CategoryId  string `json:"category_id"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
 			fmt.Printf("failed to unmarshal body")
@@ -389,9 +389,9 @@ func CreateProduct() http.HandlerFunc {
 		var body struct {
 			Name             string `json:"name"`
 			Description      string `json:"description"`
-			SubcategoryId    string `json:"subcategoryId"`
+			SubcategoryId    string `json:"subcategory_id"`
 			Price            string `json:"price"`
-			CurrentInventory string `json:"currentInventory"`
+			CurrentInventory string `json:"current_inventory"`
 			Image            string `json:"image"`
 			Brand            string `json:"brand"`
 			SKU              string `json:"sku"`
@@ -454,9 +454,9 @@ func UpdateProduct() http.HandlerFunc {
 			Id               string `json:"id"`
 			Name             string `json:"name"`
 			Description      string `json:"description"`
-			SubcategoryId    string `json:"subcategoryId"`
+			SubcategoryId    string `json:"subcategory_id"`
 			Price            string `json:"price"`
-			CurrentInventory string `json:"currentInventory"`
+			CurrentInventory string `json:"current_inventory"`
 			Image            string `json:"image"`
 			Brand            string `json:"brand"`
 			SKU              string `json:"sku"`

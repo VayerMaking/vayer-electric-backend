@@ -5,8 +5,8 @@ CREATE TABLE product (
   created_at timestamp NOT NULL,
   subcategory_id int NOT NULL REFERENCES subcategory(id),
   price numeric(10,2) NOT NULL,
-  currentInventory int NOT NULL,
-  image varchar(255) NOT NULL,
+  current_inventory int NOT NULL,
+  image_url varchar(255) NOT NULL,
   brand varchar(255) NOT NULL,
   sku varchar(255) NOT NULL
 );
