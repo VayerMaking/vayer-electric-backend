@@ -66,22 +66,22 @@ func (s DbSource) Migrate(path string) error {
 }
 
 func (s DbSource) InsertProduct(name string, description string, subcategory_id int, price float64, currentInventory int, image string, brand string, sku string) error {
-	_, err := s.conn.Exec("INSERT INTO products (name, description, subcategory_id, price, current_inventory, image, brand, sku, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", name, description, subcategory_id, price, currentInventory, image, brand, sku, time.Now())
+	_, err := s.conn.Exec("INSERT INTO product (name, description, subcategory_id, price, current_inventory, image, brand, sku, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", name, description, subcategory_id, price, currentInventory, image, brand, sku, time.Now())
 	return err
 }
 
 func (s DbSource) UpdateProduct(id int, name string, description string, subcategory_id int, price float64, currentInventory int, image string, brand string, sku string) error {
-	_, err := s.conn.Exec("UPDATE products SET name = $1, description = $2, subcategory_id = $3, price = $4, current_inventory = $5, image = $6, brand = $7, sku = $8, updated_at = $9 WHERE id = $10", name, description, subcategory_id, price, currentInventory, image, brand, sku, time.Now(), id)
+	_, err := s.conn.Exec("UPDATE product SET name = $1, description = $2, subcategory_id = $3, price = $4, current_inventory = $5, image = $6, brand = $7, sku = $8, updated_at = $9 WHERE id = $10", name, description, subcategory_id, price, currentInventory, image, brand, sku, time.Now(), id)
 	return err
 }
 
 func (s DbSource) DeleteProduct(id int) error {
-	_, err := s.conn.Exec("DELETE FROM products WHERE id = $1", id)
+	_, err := s.conn.Exec("DELETE FROM product WHERE id = $1", id)
 	return err
 }
 
 func (s DbSource) GetProducts() ([]stucts.Product, error) {
-	rows, err := s.conn.Query("SELECT * FROM products")
+	rows, err := s.conn.Query("SELECT * FROM product")
 
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (s DbSource) GetProducts() ([]stucts.Product, error) {
 
 func (s DbSource) GetProductById(id int) (stucts.Product, error) {
 	var product stucts.Product
-	err := s.conn.QueryRow("SELECT * FROM products WHERE id = $1", id).Scan(&product.Id, &product.Name, &product.Description, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.Image, &product.Brand, &product.Sku, &product.CreatedAt)
+	err := s.conn.QueryRow("SELECT * FROM product WHERE id = $1", id).Scan(&product.Id, &product.Name, &product.Description, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.Image, &product.Brand, &product.Sku, &product.CreatedAt)
 
 	if err != nil {
 		return stucts.Product{}, err
@@ -121,7 +121,7 @@ func (s DbSource) GetProductById(id int) (stucts.Product, error) {
 }
 
 func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Product, error) {
-	rows, err := s.conn.Query("SELECT * FROM products WHERE subcategory_id = $1", subcategory_id)
+	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id = $1", subcategory_id)
 
 	if err != nil {
 		return nil, err
@@ -150,22 +150,22 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Produ
 }
 
 func (s DbSource) InsertSubcategory(name string, description string, category_id int) error {
-	_, err := s.conn.Exec("INSERT INTO subcategories (name, description, category_id, created_at) VALUES ($1, $2, $3, $4)", name, description, category_id, time.Now())
+	_, err := s.conn.Exec("INSERT INTO subcategory (name, description, category_id, created_at) VALUES ($1, $2, $3, $4)", name, description, category_id, time.Now())
 	return err
 }
 
 func (s DbSource) UpdateSubcategory(id int, name string, description string, category_id int) error {
-	_, err := s.conn.Exec("UPDATE subcategories SET name = $1, description = $2, category_id = $3, updated_at = $4 WHERE id = $5", name, description, category_id, time.Now(), id)
+	_, err := s.conn.Exec("UPDATE subcategory SET name = $1, description = $2, category_id = $3, updated_at = $4 WHERE id = $5", name, description, category_id, time.Now(), id)
 	return err
 }
 
 func (s DbSource) DeleteSubcategory(id int) error {
-	_, err := s.conn.Exec("DELETE FROM subcategories WHERE id = $1", id)
+	_, err := s.conn.Exec("DELETE FROM subcategory WHERE id = $1", id)
 	return err
 }
 
 func (s DbSource) GetSubcategories() ([]stucts.Subcategory, error) {
-	rows, err := s.conn.Query("SELECT * FROM subcategories")
+	rows, err := s.conn.Query("SELECT * FROM subcategory")
 
 	if err != nil {
 		return nil, err
@@ -195,7 +195,7 @@ func (s DbSource) GetSubcategories() ([]stucts.Subcategory, error) {
 
 func (s DbSource) GetSubcategoryById(id int) (stucts.Subcategory, error) {
 	var subcategory stucts.Subcategory
-	err := s.conn.QueryRow("SELECT * FROM subcategories WHERE id = $1", id).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
+	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE id = $1", id).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
 
 	if err != nil {
 		return stucts.Subcategory{}, err
@@ -206,7 +206,7 @@ func (s DbSource) GetSubcategoryById(id int) (stucts.Subcategory, error) {
 
 func (s DbSource) GetSubcategoryByName(name string) (stucts.Subcategory, error) {
 	var subcategory stucts.Subcategory
-	err := s.conn.QueryRow("SELECT * FROM subcategories WHERE name = $1", name).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
+	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE name = $1", name).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
 
 	if err != nil {
 		return stucts.Subcategory{}, err
@@ -216,22 +216,22 @@ func (s DbSource) GetSubcategoryByName(name string) (stucts.Subcategory, error) 
 }
 
 func (s DbSource) InsertCategory(name string, description string) error {
-	_, err := s.conn.Exec("INSERT INTO categories (name, description, created_at) VALUES ($1, $2, $3)", name, description, time.Now())
+	_, err := s.conn.Exec("INSERT INTO category (name, description, created_at) VALUES ($1, $2, $3)", name, description, time.Now())
 	return err
 }
 
 func (s DbSource) UpdateCategory(id int, name string, description string) error {
-	_, err := s.conn.Exec("UPDATE categories SET name = $1, description = $2, updated_at = $3 WHERE id = $4", name, description, time.Now(), id)
+	_, err := s.conn.Exec("UPDATE category SET name = $1, description = $2, updated_at = $3 WHERE id = $4", name, description, time.Now(), id)
 	return err
 }
 
 func (s DbSource) DeleteCategory(id int) error {
-	_, err := s.conn.Exec("DELETE FROM categories WHERE id = $1", id)
+	_, err := s.conn.Exec("DELETE FROM category WHERE id = $1", id)
 	return err
 }
 
 func (s DbSource) GetCategories() ([]stucts.Category, error) {
-	rows, err := s.conn.Query("SELECT * FROM categories")
+	rows, err := s.conn.Query("SELECT * FROM category")
 
 	if err != nil {
 		return nil, err
@@ -261,7 +261,7 @@ func (s DbSource) GetCategories() ([]stucts.Category, error) {
 
 func (s DbSource) GetCategoryById(id int) (stucts.Category, error) {
 	var category stucts.Category
-	err := s.conn.QueryRow("SELECT * FROM categories WHERE id = $1", id).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt)
+	err := s.conn.QueryRow("SELECT * FROM category WHERE id = $1", id).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt)
 
 	if err != nil {
 		return stucts.Category{}, err
@@ -272,7 +272,7 @@ func (s DbSource) GetCategoryById(id int) (stucts.Category, error) {
 
 func (s DbSource) GetCategoryByName(name string) (stucts.Category, error) {
 	var category stucts.Category
-	err := s.conn.QueryRow("SELECT * FROM categories WHERE name = $1", name).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt)
+	err := s.conn.QueryRow("SELECT * FROM category WHERE name = $1", name).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt)
 
 	if err != nil {
 		return stucts.Category{}, err
@@ -282,7 +282,7 @@ func (s DbSource) GetCategoryByName(name string) (stucts.Category, error) {
 }
 
 func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]stucts.Subcategory, error) {
-	rows, err := s.conn.Query("SELECT * FROM subcategories WHERE category_id = $1", category_id)
+	rows, err := s.conn.Query("SELECT * FROM subcategory WHERE category_id = $1", category_id)
 
 	if err != nil {
 		return nil, err
