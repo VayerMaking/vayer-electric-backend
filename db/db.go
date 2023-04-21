@@ -60,12 +60,12 @@ func (s DbSource) ValidateConnection() bool {
 }
 
 func (s DbSource) Migrate(path string) error {
-	migrator, _ := gomigrate.NewMigrator(s.conn, gomigrate.Mysql{}, path)
+	migrator, _ := gomigrate.NewMigrator(s.conn, gomigrate.Postgres{}, path)
 	defer s.conn.Close()
 	return migrator.Migrate()
 }
 
-func (s DbSource) InsertProduct(name string, description string, subcategory_id int, price float64, currentInventory int, image string, brand string, sku string)	error {
+func (s DbSource) InsertProduct(name string, description string, subcategory_id int, price float64, currentInventory int, image string, brand string, sku string) error {
 	_, err := s.conn.Exec("INSERT INTO products (name, description, subcategory_id, price, current_inventory, image, brand, sku, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", name, description, subcategory_id, price, currentInventory, image, brand, sku, time.Now())
 	return err
 }
@@ -220,7 +220,7 @@ func (s DbSource) InsertCategory(name string, description string) error {
 	return err
 }
 
-func (s DbSource) UpdateCategory(id int, name string, description string) error{
+func (s DbSource) UpdateCategory(id int, name string, description string) error {
 	_, err := s.conn.Exec("UPDATE categories SET name = $1, description = $2, updated_at = $3 WHERE id = $4", name, description, time.Now(), id)
 	return err
 }
