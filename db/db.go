@@ -65,8 +65,8 @@ func (s DbSource) Migrate(path string) error {
 	return migrator.Migrate()
 }
 
-func (s DbSource) InsertProduct(name string, description string, subcategory_id int, price float64, currentInventory int, image string, brand string, sku string) error {
-	_, err := s.conn.Exec("INSERT INTO product (name, description, subcategory_id, price, current_inventory, image, brand, sku, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", name, description, subcategory_id, price, currentInventory, image, brand, sku, time.Now())
+func (s DbSource) InsertProduct(name string, description string, subcategory_id int, price float64, currentInventory int, imageUrl string, brand string, sku string) error {
+	_, err := s.conn.Exec("INSERT INTO product (name, description, subcategory_id, price, current_inventory, image_url, brand, sku, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", name, description, subcategory_id, price, currentInventory, imageUrl, brand, sku, time.Now())
 	return err
 }
 
@@ -93,7 +93,7 @@ func (s DbSource) GetProducts() ([]stucts.Product, error) {
 
 	for rows.Next() {
 		var product stucts.Product
-		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.Image, &product.Brand, &product.Sku, &product.CreatedAt)
+		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
 			return nil, err
@@ -111,7 +111,7 @@ func (s DbSource) GetProducts() ([]stucts.Product, error) {
 
 func (s DbSource) GetProductById(id int) (stucts.Product, error) {
 	var product stucts.Product
-	err := s.conn.QueryRow("SELECT * FROM product WHERE id = $1", id).Scan(&product.Id, &product.Name, &product.Description, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.Image, &product.Brand, &product.Sku, &product.CreatedAt)
+	err := s.conn.QueryRow("SELECT * FROM product WHERE id = $1", id).Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 	if err != nil {
 		return stucts.Product{}, err
@@ -133,7 +133,7 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Produ
 
 	for rows.Next() {
 		var product stucts.Product
-		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.Image, &product.Brand, &product.Sku, &product.CreatedAt)
+		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
 			return nil, err
@@ -195,7 +195,7 @@ func (s DbSource) GetSubcategories() ([]stucts.Subcategory, error) {
 
 func (s DbSource) GetSubcategoryById(id int) (stucts.Subcategory, error) {
 	var subcategory stucts.Subcategory
-	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE id = $1", id).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
+	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE id = $1", id).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId)
 
 	if err != nil {
 		return stucts.Subcategory{}, err
@@ -206,7 +206,7 @@ func (s DbSource) GetSubcategoryById(id int) (stucts.Subcategory, error) {
 
 func (s DbSource) GetSubcategoryByName(name string) (stucts.Subcategory, error) {
 	var subcategory stucts.Subcategory
-	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE name = $1", name).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
+	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE name = $1", name).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId)
 
 	if err != nil {
 		return stucts.Subcategory{}, err
@@ -294,7 +294,7 @@ func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]stucts.Subcat
 
 	for rows.Next() {
 		var subcategory stucts.Subcategory
-		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
+		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId)
 
 		if err != nil {
 			return nil, err

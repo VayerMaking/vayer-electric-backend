@@ -392,7 +392,7 @@ func CreateProduct() http.HandlerFunc {
 			SubcategoryId    string `json:"subcategory_id"`
 			Price            string `json:"price"`
 			CurrentInventory string `json:"current_inventory"`
-			Image            string `json:"image"`
+			ImageUrl         string `json:"image_url"`
 			Brand            string `json:"brand"`
 			SKU              string `json:"sku"`
 		}
@@ -408,7 +408,7 @@ func CreateProduct() http.HandlerFunc {
 		body.SubcategoryId = strings.TrimSpace(body.SubcategoryId)
 		body.Price = strings.TrimSpace(body.Price)
 		body.CurrentInventory = strings.TrimSpace(body.CurrentInventory)
-		body.Image = strings.TrimSpace(body.Image)
+		body.ImageUrl = strings.TrimSpace(body.ImageUrl)
 		body.Brand = strings.TrimSpace(body.Brand)
 		body.SKU = strings.TrimSpace(body.SKU)
 
@@ -417,7 +417,7 @@ func CreateProduct() http.HandlerFunc {
 		subcategoryId := body.SubcategoryId
 		price := body.Price
 		currentInventory := body.CurrentInventory
-		image := body.Image
+		imageUrl := body.ImageUrl
 		brand := body.Brand
 		sku := body.SKU
 
@@ -430,7 +430,7 @@ func CreateProduct() http.HandlerFunc {
 		parsedSubcategoryCategoryId, err := strconv.Atoi(subcategoryId)
 		parsedPrice, err := strconv.ParseFloat(price, 64)
 		parsedCurrentInventory, err := strconv.Atoi(currentInventory)
-		err = dbs.InsertProduct(name, description, parsedSubcategoryCategoryId, parsedPrice, parsedCurrentInventory, image, brand, sku)
+		err = dbs.InsertProduct(name, description, parsedSubcategoryCategoryId, parsedPrice, parsedCurrentInventory, imageUrl, brand, sku)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
