@@ -177,7 +177,7 @@ func (s DbSource) GetSubcategories() ([]stucts.Subcategory, error) {
 
 	for rows.Next() {
 		var subcategory stucts.Subcategory
-		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CategoryId, &subcategory.CreatedAt)
+		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId)
 
 		if err != nil {
 			return nil, err
