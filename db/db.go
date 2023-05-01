@@ -67,16 +67,19 @@ func (s DbSource) Migrate(path string) error {
 
 func (s DbSource) InsertProduct(name string, description string, subcategory_id int, price float64, currentInventory int, imageUrl string, brand string, sku string) error {
 	_, err := s.conn.Exec("INSERT INTO product (name, description, subcategory_id, price, current_inventory, image_url, brand, sku, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", name, description, subcategory_id, price, currentInventory, imageUrl, brand, sku, time.Now())
+	defer s.conn.Close()
 	return err
 }
 
 func (s DbSource) UpdateProduct(id int, name string, description string, subcategory_id int, price float64, currentInventory int, image string, brand string, sku string) error {
 	_, err := s.conn.Exec("UPDATE product SET name = $1, description = $2, subcategory_id = $3, price = $4, current_inventory = $5, image = $6, brand = $7, sku = $8, updated_at = $9 WHERE id = $10", name, description, subcategory_id, price, currentInventory, image, brand, sku, time.Now(), id)
+	defer s.conn.Close()
 	return err
 }
 
 func (s DbSource) DeleteProduct(id int) error {
 	_, err := s.conn.Exec("DELETE FROM product WHERE id = $1", id)
+	defer s.conn.Close()
 	return err
 }
 
@@ -106,6 +109,8 @@ func (s DbSource) GetProducts() ([]stucts.Product, error) {
 		return nil, err
 	}
 
+	defer s.conn.Close()
+
 	return products, nil
 }
 
@@ -116,6 +121,8 @@ func (s DbSource) GetProductById(id int) (stucts.Product, error) {
 	if err != nil {
 		return stucts.Product{}, err
 	}
+
+	defer s.conn.Close()
 
 	return product, nil
 }
@@ -146,21 +153,32 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Produ
 		return nil, err
 	}
 
+	defer s.conn.Close()
+
 	return products, nil
 }
 
 func (s DbSource) InsertSubcategory(name string, description string, category_id int) error {
 	_, err := s.conn.Exec("INSERT INTO subcategory (name, description, category_id, created_at) VALUES ($1, $2, $3, $4)", name, description, category_id, time.Now())
+
+	defer s.conn.Close()
+
 	return err
 }
 
 func (s DbSource) UpdateSubcategory(id int, name string, description string, category_id int) error {
 	_, err := s.conn.Exec("UPDATE subcategory SET name = $1, description = $2, category_id = $3, updated_at = $4 WHERE id = $5", name, description, category_id, time.Now(), id)
+
+	defer s.conn.Close()
+
 	return err
 }
 
 func (s DbSource) DeleteSubcategory(id int) error {
 	_, err := s.conn.Exec("DELETE FROM subcategory WHERE id = $1", id)
+
+	defer s.conn.Close()
+
 	return err
 }
 
@@ -190,6 +208,8 @@ func (s DbSource) GetSubcategories() ([]stucts.Subcategory, error) {
 		return nil, err
 	}
 
+	defer s.conn.Close()
+
 	return subcategories, nil
 }
 
@@ -200,6 +220,8 @@ func (s DbSource) GetSubcategoryById(id int) (stucts.Subcategory, error) {
 	if err != nil {
 		return stucts.Subcategory{}, err
 	}
+
+	defer s.conn.Close()
 
 	return subcategory, nil
 }
@@ -212,21 +234,29 @@ func (s DbSource) GetSubcategoryByName(name string) (stucts.Subcategory, error) 
 		return stucts.Subcategory{}, err
 	}
 
+	defer s.conn.Close()
+
 	return subcategory, nil
 }
 
 func (s DbSource) InsertCategory(name string, description string) error {
 	_, err := s.conn.Exec("INSERT INTO category (name, description, created_at) VALUES ($1, $2, $3)", name, description, time.Now())
+	defer s.conn.Close()
+
 	return err
 }
 
 func (s DbSource) UpdateCategory(id int, name string, description string) error {
 	_, err := s.conn.Exec("UPDATE category SET name = $1, description = $2, updated_at = $3 WHERE id = $4", name, description, time.Now(), id)
+	defer s.conn.Close()
+
 	return err
 }
 
 func (s DbSource) DeleteCategory(id int) error {
 	_, err := s.conn.Exec("DELETE FROM category WHERE id = $1", id)
+	defer s.conn.Close()
+
 	return err
 }
 
@@ -256,6 +286,8 @@ func (s DbSource) GetCategories() ([]stucts.Category, error) {
 		return nil, err
 	}
 
+	defer s.conn.Close()
+
 	return categories, nil
 }
 
@@ -267,6 +299,8 @@ func (s DbSource) GetCategoryById(id int) (stucts.Category, error) {
 		return stucts.Category{}, err
 	}
 
+	defer s.conn.Close()
+
 	return category, nil
 }
 
@@ -277,6 +311,8 @@ func (s DbSource) GetCategoryByName(name string) (stucts.Category, error) {
 	if err != nil {
 		return stucts.Category{}, err
 	}
+
+	defer s.conn.Close()
 
 	return category, nil
 }
@@ -306,6 +342,8 @@ func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]stucts.Subcat
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
+
+	defer s.conn.Close()
 
 	return subcategories, nil
 }
