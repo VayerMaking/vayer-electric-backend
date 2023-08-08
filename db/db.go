@@ -127,6 +127,20 @@ func (s DbSource) GetProductById(id int) (stucts.Product, error) {
 	return product, nil
 }
 
+func (s DbSource) GetProductByName(name string) (stucts.Product, error) {
+	var product stucts.Product
+	err := s.conn.QueryRow("SELECT * FROM product WHERE name = $1", name).Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
+
+	if err != nil {
+		return stucts.Product{}, err
+	}
+
+	defer s.conn.Close()
+
+	return product, nil
+
+}
+
 func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Product, error) {
 	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id = $1", subcategory_id)
 
@@ -147,6 +161,69 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Produ
 		}
 
 		products = append(products, product)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	defer s.conn.Close()
+
+	return products, nil
+}
+
+func (s DbSource) GetProductsByCategoryId(categoryId int) ([]stucts.Product, error) {
+	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id IN (SELECT id FROM subcategory WHERE category_id = $1)", categoryId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	products := make([]stucts.Product, 0)
+
+	for rows.Next() {
+		var product stucts.Product
+		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
+
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, product)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	defer s.conn.Close()
+
+	return products, nil
+}
+
+func (s DbSource) GetProductsByCategoryName(categoryName string) ([]stucts.Product, error) {
+	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id IN (SELECT id FROM subcategory WHERE category_id = (SELECT id FROM category WHERE name = $1))", categoryName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	products := make([]stucts.Product, 0)
+
+	for rows.Next() {
+		var product stucts.Product
+		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
+
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, product)
+
 	}
 
 	if err = rows.Err(); err != nil {

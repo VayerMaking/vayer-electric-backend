@@ -360,13 +360,74 @@ func GetProductById() http.HandlerFunc {
 	}
 }
 
+func GetProductByName() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := chi.URLParam(r, "name")
+
+		dbs := db.GetDbSource()
+		product, err := dbs.GetProductByName(name)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(product)
+	}
+}
+
 func GetProductsBySubcategoryId() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		products, err := dbs.GetProductsBySubcategoryId(parsedId)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(products)
+	}
+}
+
+func GetProductsByCategoryId() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+
+		dbs := db.GetDbSource()
+		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		products, err := dbs.GetProductsByCategoryId(parsedId)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		json.NewEncoder(w).Encode(products)
+	}
+}
+
+func GetProductsByCategoryName() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := chi.URLParam(r, "name")
+
+		dbs := db.GetDbSource()
+		products, err := dbs.GetProductsByCategoryName(name)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -64,6 +64,9 @@ func main() {
 			r.Post("/", handler.CreateProduct())
 			r.Put("/{id}", handler.UpdateProduct())
 			r.Delete("/{id}", handler.DeleteProduct())
+			r.Get("/category/{id}", handler.GetProductsByCategoryId())
+			r.Get("/category/{name}", handler.GetProductsByCategoryName())
+			r.Get("/{name}", handler.GetProductByName())
 		})
 		r.Route("/categories", func(r chi.Router) {
 			r.Get("/", handler.GetCategories())
