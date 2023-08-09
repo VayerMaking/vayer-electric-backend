@@ -13,6 +13,7 @@ import (
 	"vayer-electric-backend/handler"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 )
 
 var httpPort = env.PORT
@@ -56,6 +57,10 @@ func main() {
 		Addr:    fmt.Sprintf(":%d", httpPort),
 		Handler: r,
 	})
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{"https://*", "http://*"},
+	}))
 
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/products", func(r chi.Router) {
