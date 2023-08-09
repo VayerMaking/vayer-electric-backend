@@ -71,6 +71,7 @@ func CreateCategory() http.HandlerFunc {
 		var body struct {
 			Name        string `json:"name"`
 			Description string `json:"description"`
+			ImageUrl    string `json:"image_url"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
 			fmt.Printf("failed to unmarshal body")
@@ -81,9 +82,11 @@ func CreateCategory() http.HandlerFunc {
 		// Trim input
 		body.Name = strings.TrimSpace(body.Name)
 		body.Description = strings.TrimSpace(body.Description)
+		body.ImageUrl = strings.TrimSpace(body.ImageUrl)
 
 		name := body.Name
 		description := body.Description
+		image_url := body.ImageUrl
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -91,7 +94,7 @@ func CreateCategory() http.HandlerFunc {
 		}
 
 		dbs := db.GetDbSource()
-		err = dbs.InsertCategory(name, description)
+		err = dbs.InsertCategory(name, description, image_url)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -115,6 +118,7 @@ func UpdateCategory() http.HandlerFunc {
 			Id          string `json:"id"`
 			Name        string `json:"name"`
 			Description string `json:"description"`
+			ImageUrl    string `json:"image_url"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
 			fmt.Printf("failed to unmarshal body")
@@ -126,10 +130,12 @@ func UpdateCategory() http.HandlerFunc {
 		body.Id = strings.TrimSpace(body.Id)
 		body.Name = strings.TrimSpace(body.Name)
 		body.Description = strings.TrimSpace(body.Description)
+		body.ImageUrl = strings.TrimSpace(body.ImageUrl)
 
 		id := body.Id
 		name := body.Name
 		description := body.Description
+		image_url := body.ImageUrl
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -138,7 +144,7 @@ func UpdateCategory() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
-		err = dbs.UpdateCategory(parsedId, name, description)
+		err = dbs.UpdateCategory(parsedId, name, description, image_url)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -210,6 +216,7 @@ func CreateSubcategory() http.HandlerFunc {
 			Name        string `json:"name"`
 			Description string `json:"description"`
 			CategoryId  string `json:"category_id"`
+			ImageUrl    string `json:"image_url"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
 			fmt.Printf("failed to unmarshal body")
@@ -221,10 +228,12 @@ func CreateSubcategory() http.HandlerFunc {
 		body.Name = strings.TrimSpace(body.Name)
 		body.Description = strings.TrimSpace(body.Description)
 		body.CategoryId = strings.TrimSpace(body.CategoryId)
+		body.ImageUrl = strings.TrimSpace(body.ImageUrl)
 
 		name := body.Name
 		description := body.Description
 		categoryId := body.CategoryId
+		image_url := body.ImageUrl
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -233,7 +242,7 @@ func CreateSubcategory() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedCategoryId, err := strconv.Atoi(categoryId)
-		err = dbs.InsertSubcategory(name, description, parsedCategoryId)
+		err = dbs.InsertSubcategory(name, description, parsedCategoryId, image_url)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -258,6 +267,7 @@ func UpdateSubcategory() http.HandlerFunc {
 			Name        string `json:"name"`
 			Description string `json:"description"`
 			CategoryId  string `json:"category_id"`
+			ImageUrl    string `json:"image_url"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
 			fmt.Printf("failed to unmarshal body")
@@ -270,11 +280,13 @@ func UpdateSubcategory() http.HandlerFunc {
 		body.Name = strings.TrimSpace(body.Name)
 		body.Description = strings.TrimSpace(body.Description)
 		body.CategoryId = strings.TrimSpace(body.CategoryId)
+		body.ImageUrl = strings.TrimSpace(body.ImageUrl)
 
 		id := body.Id
 		name := body.Name
 		description := body.Description
 		categoryId := body.CategoryId
+		image_url := body.ImageUrl
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -284,7 +296,7 @@ func UpdateSubcategory() http.HandlerFunc {
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
 		parsedCategoryId, err := strconv.Atoi(categoryId)
-		err = dbs.UpdateSubcategory(parsedId, name, description, parsedCategoryId)
+		err = dbs.UpdateSubcategory(parsedId, name, description, parsedCategoryId, image_url)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

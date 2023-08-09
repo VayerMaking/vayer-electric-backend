@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"vayer-electric-backend/env"
-	"vayer-electric-backend/stucts"
+	"vayer-electric-backend/structs"
 
 	"github.com/DavidHuie/gomigrate"
 	_ "github.com/lib/pq"
@@ -83,7 +83,7 @@ func (s DbSource) DeleteProduct(id int) error {
 	return err
 }
 
-func (s DbSource) GetProducts() ([]stucts.Product, error) {
+func (s DbSource) GetProducts() ([]structs.Product, error) {
 	rows, err := s.conn.Query("SELECT * FROM product")
 
 	if err != nil {
@@ -92,10 +92,10 @@ func (s DbSource) GetProducts() ([]stucts.Product, error) {
 
 	defer rows.Close()
 
-	products := make([]stucts.Product, 0)
+	products := make([]structs.Product, 0)
 
 	for rows.Next() {
-		var product stucts.Product
+		var product structs.Product
 		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
@@ -114,12 +114,12 @@ func (s DbSource) GetProducts() ([]stucts.Product, error) {
 	return products, nil
 }
 
-func (s DbSource) GetProductById(id int) (stucts.Product, error) {
-	var product stucts.Product
+func (s DbSource) GetProductById(id int) (structs.Product, error) {
+	var product structs.Product
 	err := s.conn.QueryRow("SELECT * FROM product WHERE id = $1", id).Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 	if err != nil {
-		return stucts.Product{}, err
+		return structs.Product{}, err
 	}
 
 	defer s.conn.Close()
@@ -127,12 +127,12 @@ func (s DbSource) GetProductById(id int) (stucts.Product, error) {
 	return product, nil
 }
 
-func (s DbSource) GetProductByName(name string) (stucts.Product, error) {
-	var product stucts.Product
+func (s DbSource) GetProductByName(name string) (structs.Product, error) {
+	var product structs.Product
 	err := s.conn.QueryRow("SELECT * FROM product WHERE name = $1", name).Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 	if err != nil {
-		return stucts.Product{}, err
+		return structs.Product{}, err
 	}
 
 	defer s.conn.Close()
@@ -141,7 +141,7 @@ func (s DbSource) GetProductByName(name string) (stucts.Product, error) {
 
 }
 
-func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Product, error) {
+func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]structs.Product, error) {
 	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id = $1", subcategory_id)
 
 	if err != nil {
@@ -150,10 +150,10 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Produ
 
 	defer rows.Close()
 
-	products := make([]stucts.Product, 0)
+	products := make([]structs.Product, 0)
 
 	for rows.Next() {
-		var product stucts.Product
+		var product structs.Product
 		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
@@ -172,7 +172,7 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]stucts.Produ
 	return products, nil
 }
 
-func (s DbSource) GetProductsByCategoryId(categoryId int) ([]stucts.Product, error) {
+func (s DbSource) GetProductsByCategoryId(categoryId int) ([]structs.Product, error) {
 	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id IN (SELECT id FROM subcategory WHERE category_id = $1)", categoryId)
 
 	if err != nil {
@@ -181,10 +181,10 @@ func (s DbSource) GetProductsByCategoryId(categoryId int) ([]stucts.Product, err
 
 	defer rows.Close()
 
-	products := make([]stucts.Product, 0)
+	products := make([]structs.Product, 0)
 
 	for rows.Next() {
-		var product stucts.Product
+		var product structs.Product
 		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
@@ -203,7 +203,7 @@ func (s DbSource) GetProductsByCategoryId(categoryId int) ([]stucts.Product, err
 	return products, nil
 }
 
-func (s DbSource) GetProductsByCategoryName(categoryName string) ([]stucts.Product, error) {
+func (s DbSource) GetProductsByCategoryName(categoryName string) ([]structs.Product, error) {
 	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id IN (SELECT id FROM subcategory WHERE category_id = (SELECT id FROM category WHERE name = $1))", categoryName)
 
 	if err != nil {
@@ -212,10 +212,10 @@ func (s DbSource) GetProductsByCategoryName(categoryName string) ([]stucts.Produ
 
 	defer rows.Close()
 
-	products := make([]stucts.Product, 0)
+	products := make([]structs.Product, 0)
 
 	for rows.Next() {
-		var product stucts.Product
+		var product structs.Product
 		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
@@ -235,16 +235,16 @@ func (s DbSource) GetProductsByCategoryName(categoryName string) ([]stucts.Produ
 	return products, nil
 }
 
-func (s DbSource) InsertSubcategory(name string, description string, category_id int) error {
-	_, err := s.conn.Exec("INSERT INTO subcategory (name, description, category_id, created_at) VALUES ($1, $2, $3, $4)", name, description, category_id, time.Now())
+func (s DbSource) InsertSubcategory(name string, description string, category_id int, image_url string) error {
+	_, err := s.conn.Exec("INSERT INTO subcategory (name, description, category_id, created_at, image_url) VALUES ($1, $2, $3, $4, $5)", name, description, category_id, time.Now(), image_url)
 
 	defer s.conn.Close()
 
 	return err
 }
 
-func (s DbSource) UpdateSubcategory(id int, name string, description string, category_id int) error {
-	_, err := s.conn.Exec("UPDATE subcategory SET name = $1, description = $2, category_id = $3, updated_at = $4 WHERE id = $5", name, description, category_id, time.Now(), id)
+func (s DbSource) UpdateSubcategory(id int, name string, description string, category_id int, image_url string) error {
+	_, err := s.conn.Exec("UPDATE subcategory SET name = $1, description = $2, category_id = $3, updated_at = $4, image_url = $5 WHERE id = $6", name, description, category_id, time.Now(), image_url, id)
 
 	defer s.conn.Close()
 
@@ -259,7 +259,7 @@ func (s DbSource) DeleteSubcategory(id int) error {
 	return err
 }
 
-func (s DbSource) GetSubcategories() ([]stucts.Subcategory, error) {
+func (s DbSource) GetSubcategories() ([]structs.Subcategory, error) {
 	rows, err := s.conn.Query("SELECT * FROM subcategory")
 
 	if err != nil {
@@ -268,11 +268,11 @@ func (s DbSource) GetSubcategories() ([]stucts.Subcategory, error) {
 
 	defer rows.Close()
 
-	subcategories := make([]stucts.Subcategory, 0)
+	subcategories := make([]structs.Subcategory, 0)
 
 	for rows.Next() {
-		var subcategory stucts.Subcategory
-		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId)
+		var subcategory structs.Subcategory
+		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId, &subcategory.ImageUrl)
 
 		if err != nil {
 			return nil, err
@@ -290,12 +290,12 @@ func (s DbSource) GetSubcategories() ([]stucts.Subcategory, error) {
 	return subcategories, nil
 }
 
-func (s DbSource) GetSubcategoryById(id int) (stucts.Subcategory, error) {
-	var subcategory stucts.Subcategory
-	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE id = $1", id).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId)
+func (s DbSource) GetSubcategoryById(id int) (structs.Subcategory, error) {
+	var subcategory structs.Subcategory
+	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE id = $1", id).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId, &subcategory.ImageUrl)
 
 	if err != nil {
-		return stucts.Subcategory{}, err
+		return structs.Subcategory{}, err
 	}
 
 	defer s.conn.Close()
@@ -303,12 +303,12 @@ func (s DbSource) GetSubcategoryById(id int) (stucts.Subcategory, error) {
 	return subcategory, nil
 }
 
-func (s DbSource) GetSubcategoryByName(name string) (stucts.Subcategory, error) {
-	var subcategory stucts.Subcategory
-	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE name = $1", name).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId)
+func (s DbSource) GetSubcategoryByName(name string) (structs.Subcategory, error) {
+	var subcategory structs.Subcategory
+	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE name = $1", name).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId, &subcategory.ImageUrl)
 
 	if err != nil {
-		return stucts.Subcategory{}, err
+		return structs.Subcategory{}, err
 	}
 
 	defer s.conn.Close()
@@ -316,15 +316,15 @@ func (s DbSource) GetSubcategoryByName(name string) (stucts.Subcategory, error) 
 	return subcategory, nil
 }
 
-func (s DbSource) InsertCategory(name string, description string) error {
-	_, err := s.conn.Exec("INSERT INTO category (name, description, created_at) VALUES ($1, $2, $3)", name, description, time.Now())
+func (s DbSource) InsertCategory(name string, description string, image_url string) error {
+	_, err := s.conn.Exec("INSERT INTO category (name, description, created_at, image_url) VALUES ($1, $2, $3, $4)", name, description, time.Now(), image_url)
 	defer s.conn.Close()
 
 	return err
 }
 
-func (s DbSource) UpdateCategory(id int, name string, description string) error {
-	_, err := s.conn.Exec("UPDATE category SET name = $1, description = $2, updated_at = $3 WHERE id = $4", name, description, time.Now(), id)
+func (s DbSource) UpdateCategory(id int, name string, description string, image_url string) error {
+	_, err := s.conn.Exec("UPDATE category SET name = $1, description = $2, updated_at = $3, image_url = $4 WHERE id = $5", name, description, time.Now(), image_url, id)
 	defer s.conn.Close()
 
 	return err
@@ -337,7 +337,7 @@ func (s DbSource) DeleteCategory(id int) error {
 	return err
 }
 
-func (s DbSource) GetCategories() ([]stucts.Category, error) {
+func (s DbSource) GetCategories() ([]structs.Category, error) {
 	rows, err := s.conn.Query("SELECT * FROM category")
 
 	if err != nil {
@@ -346,11 +346,11 @@ func (s DbSource) GetCategories() ([]stucts.Category, error) {
 
 	defer rows.Close()
 
-	categories := make([]stucts.Category, 0)
+	categories := make([]structs.Category, 0)
 
 	for rows.Next() {
-		var category stucts.Category
-		err := rows.Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt)
+		var category structs.Category
+		err := rows.Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt, &category.ImageUrl)
 
 		if err != nil {
 			return nil, err
@@ -368,12 +368,12 @@ func (s DbSource) GetCategories() ([]stucts.Category, error) {
 	return categories, nil
 }
 
-func (s DbSource) GetCategoryById(id int) (stucts.Category, error) {
-	var category stucts.Category
-	err := s.conn.QueryRow("SELECT * FROM category WHERE id = $1", id).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt)
+func (s DbSource) GetCategoryById(id int) (structs.Category, error) {
+	var category structs.Category
+	err := s.conn.QueryRow("SELECT * FROM category WHERE id = $1", id).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt, &category.ImageUrl)
 
 	if err != nil {
-		return stucts.Category{}, err
+		return structs.Category{}, err
 	}
 
 	defer s.conn.Close()
@@ -381,12 +381,12 @@ func (s DbSource) GetCategoryById(id int) (stucts.Category, error) {
 	return category, nil
 }
 
-func (s DbSource) GetCategoryByName(name string) (stucts.Category, error) {
-	var category stucts.Category
-	err := s.conn.QueryRow("SELECT * FROM category WHERE name = $1", name).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt)
+func (s DbSource) GetCategoryByName(name string) (structs.Category, error) {
+	var category structs.Category
+	err := s.conn.QueryRow("SELECT * FROM category WHERE name = $1", name).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt, &category.ImageUrl)
 
 	if err != nil {
-		return stucts.Category{}, err
+		return structs.Category{}, err
 	}
 
 	defer s.conn.Close()
@@ -394,7 +394,7 @@ func (s DbSource) GetCategoryByName(name string) (stucts.Category, error) {
 	return category, nil
 }
 
-func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]stucts.Subcategory, error) {
+func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]structs.Subcategory, error) {
 	rows, err := s.conn.Query("SELECT * FROM subcategory WHERE category_id = $1", category_id)
 
 	if err != nil {
@@ -403,11 +403,11 @@ func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]stucts.Subcat
 
 	defer rows.Close()
 
-	subcategories := make([]stucts.Subcategory, 0)
+	subcategories := make([]structs.Subcategory, 0)
 
 	for rows.Next() {
-		var subcategory stucts.Subcategory
-		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId)
+		var subcategory structs.Subcategory
+		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId, &subcategory.ImageUrl)
 
 		if err != nil {
 			return nil, err
