@@ -3,19 +3,20 @@ package handler
 import (
 	"crypto/rand"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"vayer-electric-backend/db"
+	"vayer-electric-backend/logging"
 
 	"github.com/go-chi/chi/v5"
 )
 
 var (
 	volumePath = "./uploads/"
+	log        = logging.GetLogger()
 )
 
 func GetCategories() http.HandlerFunc {
@@ -24,6 +25,7 @@ func GetCategories() http.HandlerFunc {
 		categories, err := dbs.GetCategories()
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -37,11 +39,18 @@ func GetCategoryById() http.HandlerFunc {
 		id := chi.URLParam(r, "id")
 
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		dbs := db.GetDbSource()
 		category, err := dbs.GetCategoryById(parsedId)
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Error(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -57,6 +66,7 @@ func GetCategoryByName() http.HandlerFunc {
 		category, err := dbs.GetCategoryByName(name)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -69,7 +79,7 @@ func CreateCategory() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		raw, err := io.ReadAll(r.Body)
 		if err != nil {
-			fmt.Printf("failed to read body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -80,7 +90,7 @@ func CreateCategory() http.HandlerFunc {
 			ImageUrl    string `json:"image_url"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -95,7 +105,8 @@ func CreateCategory() http.HandlerFunc {
 		image_url := body.ImageUrl
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Error(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -103,6 +114,7 @@ func CreateCategory() http.HandlerFunc {
 		err = dbs.InsertCategory(name, description, image_url)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -115,7 +127,7 @@ func UpdateCategory() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		raw, err := io.ReadAll(r.Body)
 		if err != nil {
-			fmt.Printf("failed to read body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -127,7 +139,7 @@ func UpdateCategory() http.HandlerFunc {
 			ImageUrl    string `json:"image_url"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -144,12 +156,19 @@ func UpdateCategory() http.HandlerFunc {
 		image_url := body.ImageUrl
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		err = dbs.UpdateCategory(parsedId, name, description, image_url)
 
 		if err != nil {
@@ -167,9 +186,16 @@ func DeleteCategory() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		err = dbs.DeleteCategory(parsedId)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -184,6 +210,7 @@ func GetSubcategories() http.HandlerFunc {
 		subcategories, err := dbs.GetSubcategories()
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -198,9 +225,16 @@ func GetSubcategoryById() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		subcategory, err := dbs.GetSubcategoryById(parsedId)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -213,7 +247,7 @@ func CreateSubcategory() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		raw, err := io.ReadAll(r.Body)
 		if err != nil {
-			fmt.Printf("failed to read body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -225,7 +259,7 @@ func CreateSubcategory() http.HandlerFunc {
 			ImageUrl    string `json:"image_url"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -242,15 +276,23 @@ func CreateSubcategory() http.HandlerFunc {
 		image_url := body.ImageUrl
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		dbs := db.GetDbSource()
 		parsedCategoryId, err := strconv.Atoi(categoryId)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		err = dbs.InsertSubcategory(name, description, parsedCategoryId, image_url)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -263,7 +305,7 @@ func UpdateSubcategory() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		raw, err := io.ReadAll(r.Body)
 		if err != nil {
-			fmt.Printf("failed to read body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -276,7 +318,7 @@ func UpdateSubcategory() http.HandlerFunc {
 			ImageUrl    string `json:"image_url"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -295,16 +337,30 @@ func UpdateSubcategory() http.HandlerFunc {
 		image_url := body.ImageUrl
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		parsedCategoryId, err := strconv.Atoi(categoryId)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		err = dbs.UpdateSubcategory(parsedId, name, description, parsedCategoryId, image_url)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -319,9 +375,16 @@ func DeleteSubcategory() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		err = dbs.DeleteSubcategory(parsedId)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -336,9 +399,16 @@ func GetSubcategoriesByCategoryId() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		subcategories, err := dbs.GetSubcategoriesByCategoryId(parsedId)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -353,6 +423,7 @@ func GetProducts() http.HandlerFunc {
 		products, err := dbs.GetProducts()
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -367,9 +438,16 @@ func GetProductById() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		product, err := dbs.GetProductById(parsedId)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -386,6 +464,7 @@ func GetProductByName() http.HandlerFunc {
 		product, err := dbs.GetProductByName(name)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -402,6 +481,7 @@ func GetProductsBySubcategoryId() http.HandlerFunc {
 		parsedId, err := strconv.Atoi(id)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -409,6 +489,7 @@ func GetProductsBySubcategoryId() http.HandlerFunc {
 		products, err := dbs.GetProductsBySubcategoryId(parsedId)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -425,13 +506,15 @@ func GetProductsByCategoryId() http.HandlerFunc {
 		parsedId, err := strconv.Atoi(id)
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Error(err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		products, err := dbs.GetProductsByCategoryId(parsedId)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -448,6 +531,7 @@ func GetProductsByCategoryName() http.HandlerFunc {
 		products, err := dbs.GetProductsByCategoryName(name)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -470,6 +554,7 @@ func CreateProduct() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := r.ParseMultipartForm(10 << 20) // Limit to 10 MB file size
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -486,12 +571,14 @@ func CreateProduct() http.HandlerFunc {
 		// Process the image file
 		imageFile, _, err := r.FormFile("image")
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		defer imageFile.Close()
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -501,6 +588,7 @@ func CreateProduct() http.HandlerFunc {
 		subcategoryObj, err := dbs.GetSubcategoryByName(subcategory)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -508,6 +596,7 @@ func CreateProduct() http.HandlerFunc {
 		parsedPrice, err := strconv.ParseFloat(price, 64)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -515,6 +604,7 @@ func CreateProduct() http.HandlerFunc {
 		parsedCurrentInventory, err := strconv.Atoi(currentInventory)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -523,6 +613,7 @@ func CreateProduct() http.HandlerFunc {
 		imageName, err := generateRandomFilename(".jpg", 10)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -530,6 +621,7 @@ func CreateProduct() http.HandlerFunc {
 		imagePath := volumePath + imageName
 		newImageFile, err := os.Create(imagePath)
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -537,6 +629,7 @@ func CreateProduct() http.HandlerFunc {
 
 		_, err = io.Copy(newImageFile, imageFile) // Copy image data
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -546,6 +639,7 @@ func CreateProduct() http.HandlerFunc {
 		err = dbs.InsertProduct(name, description, int(subcategoryObj.Id), parsedPrice, parsedCurrentInventory, imageName, brand, sku)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -574,7 +668,7 @@ func UpdateProduct() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		raw, err := io.ReadAll(r.Body)
 		if err != nil {
-			fmt.Printf("failed to read body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -591,7 +685,7 @@ func UpdateProduct() http.HandlerFunc {
 			SKU              string `json:"sku"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
-			fmt.Printf("failed to unmarshal body")
+			log.Error(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -624,12 +718,37 @@ func UpdateProduct() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		parsedSubcategoryCategoryId, err := strconv.Atoi(subcategoryId)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		parsedPrice, err := strconv.ParseFloat(price, 64)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		parsedCurrentInventory, err := strconv.Atoi(currentInventory)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		err = dbs.UpdateProduct(parsedId, name, description, parsedSubcategoryCategoryId, parsedPrice, parsedCurrentInventory, image, brand, sku)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -644,9 +763,16 @@ func DeleteProduct() http.HandlerFunc {
 
 		dbs := db.GetDbSource()
 		parsedId, err := strconv.Atoi(id)
+
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
 		err = dbs.DeleteProduct(parsedId)
 
 		if err != nil {
+			log.Error(err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

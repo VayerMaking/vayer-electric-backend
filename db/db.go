@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"vayer-electric-backend/env"
+	"vayer-electric-backend/logging"
 	"vayer-electric-backend/structs"
 
 	"github.com/DavidHuie/gomigrate"
@@ -15,6 +16,8 @@ import (
 type DbSource struct {
 	conn *sql.DB
 }
+
+var log = logging.GetLogger()
 
 func CreateDbSource(dsn string) (DbSource, error) {
 	d, err := sql.Open("postgres", dsn)
@@ -87,6 +90,7 @@ func (s DbSource) GetProducts() ([]structs.Product, error) {
 	rows, err := s.conn.Query("SELECT * FROM product")
 
 	if err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -99,6 +103,7 @@ func (s DbSource) GetProducts() ([]structs.Product, error) {
 		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
+			log.Error(err.Error())
 			return nil, err
 		}
 
@@ -106,6 +111,7 @@ func (s DbSource) GetProducts() ([]structs.Product, error) {
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -119,6 +125,7 @@ func (s DbSource) GetProductById(id int) (structs.Product, error) {
 	err := s.conn.QueryRow("SELECT * FROM product WHERE id = $1", id).Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 	if err != nil {
+		log.Error(err.Error())
 		return structs.Product{}, err
 	}
 
@@ -132,6 +139,7 @@ func (s DbSource) GetProductByName(name string) (structs.Product, error) {
 	err := s.conn.QueryRow("SELECT * FROM product WHERE name = $1", name).Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 	if err != nil {
+		log.Error(err.Error())
 		return structs.Product{}, err
 	}
 
@@ -145,6 +153,7 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]structs.Prod
 	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id = $1", subcategory_id)
 
 	if err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -157,6 +166,7 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]structs.Prod
 		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
+			log.Error(err.Error())
 			return nil, err
 		}
 
@@ -164,6 +174,7 @@ func (s DbSource) GetProductsBySubcategoryId(subcategory_id int) ([]structs.Prod
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -176,6 +187,7 @@ func (s DbSource) GetProductsByCategoryId(categoryId int) ([]structs.Product, er
 	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id IN (SELECT id FROM subcategory WHERE category_id = $1)", categoryId)
 
 	if err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -188,6 +200,7 @@ func (s DbSource) GetProductsByCategoryId(categoryId int) ([]structs.Product, er
 		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
+			log.Error(err.Error())
 			return nil, err
 		}
 
@@ -195,6 +208,7 @@ func (s DbSource) GetProductsByCategoryId(categoryId int) ([]structs.Product, er
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -207,6 +221,7 @@ func (s DbSource) GetProductsByCategoryName(categoryName string) ([]structs.Prod
 	rows, err := s.conn.Query("SELECT * FROM product WHERE subcategory_id IN (SELECT id FROM subcategory WHERE category_id = (SELECT id FROM category WHERE name = $1))", categoryName)
 
 	if err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -219,6 +234,7 @@ func (s DbSource) GetProductsByCategoryName(categoryName string) ([]structs.Prod
 		err := rows.Scan(&product.Id, &product.Name, &product.Description, &product.CreatedAt, &product.SubcategoryId, &product.Price, &product.CurrentInventory, &product.ImageUrl, &product.Brand, &product.Sku)
 
 		if err != nil {
+			log.Error(err.Error())
 			return nil, err
 		}
 
@@ -227,6 +243,7 @@ func (s DbSource) GetProductsByCategoryName(categoryName string) ([]structs.Prod
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -263,6 +280,7 @@ func (s DbSource) GetSubcategories() ([]structs.Subcategory, error) {
 	rows, err := s.conn.Query("SELECT * FROM subcategory")
 
 	if err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -275,6 +293,7 @@ func (s DbSource) GetSubcategories() ([]structs.Subcategory, error) {
 		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId, &subcategory.ImageUrl)
 
 		if err != nil {
+			log.Error(err.Error())
 			return nil, err
 		}
 
@@ -282,6 +301,7 @@ func (s DbSource) GetSubcategories() ([]structs.Subcategory, error) {
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -295,6 +315,7 @@ func (s DbSource) GetSubcategoryById(id int) (structs.Subcategory, error) {
 	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE id = $1", id).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId, &subcategory.ImageUrl)
 
 	if err != nil {
+		log.Error(err.Error())
 		return structs.Subcategory{}, err
 	}
 
@@ -308,6 +329,7 @@ func (s DbSource) GetSubcategoryByName(name string) (structs.Subcategory, error)
 	err := s.conn.QueryRow("SELECT * FROM subcategory WHERE name = $1", name).Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId, &subcategory.ImageUrl)
 
 	if err != nil {
+		log.Error(err.Error())
 		return structs.Subcategory{}, err
 	}
 
@@ -341,6 +363,7 @@ func (s DbSource) GetCategories() ([]structs.Category, error) {
 	rows, err := s.conn.Query("SELECT * FROM category")
 
 	if err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -353,6 +376,7 @@ func (s DbSource) GetCategories() ([]structs.Category, error) {
 		err := rows.Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt, &category.ImageUrl)
 
 		if err != nil {
+			log.Error(err.Error())
 			return nil, err
 		}
 
@@ -360,6 +384,7 @@ func (s DbSource) GetCategories() ([]structs.Category, error) {
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -373,6 +398,7 @@ func (s DbSource) GetCategoryById(id int) (structs.Category, error) {
 	err := s.conn.QueryRow("SELECT * FROM category WHERE id = $1", id).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt, &category.ImageUrl)
 
 	if err != nil {
+		log.Error(err.Error())
 		return structs.Category{}, err
 	}
 
@@ -386,6 +412,7 @@ func (s DbSource) GetCategoryByName(name string) (structs.Category, error) {
 	err := s.conn.QueryRow("SELECT * FROM category WHERE name = $1", name).Scan(&category.Id, &category.Name, &category.Description, &category.CreatedAt, &category.ImageUrl)
 
 	if err != nil {
+		log.Error(err.Error())
 		return structs.Category{}, err
 	}
 
@@ -398,6 +425,7 @@ func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]structs.Subca
 	rows, err := s.conn.Query("SELECT * FROM subcategory WHERE category_id = $1", category_id)
 
 	if err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 
@@ -410,6 +438,7 @@ func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]structs.Subca
 		err := rows.Scan(&subcategory.Id, &subcategory.Name, &subcategory.Description, &subcategory.CreatedAt, &subcategory.CategoryId, &subcategory.ImageUrl)
 
 		if err != nil {
+			log.Error(err.Error())
 			return nil, err
 		}
 
@@ -417,6 +446,7 @@ func (s DbSource) GetSubcategoriesByCategoryId(category_id int) ([]structs.Subca
 	}
 
 	if err = rows.Err(); err != nil {
+		log.Error(err.Error())
 		return nil, err
 	}
 

@@ -11,12 +11,17 @@ import (
 	"vayer-electric-backend/env"
 	"vayer-electric-backend/gracefulserver"
 	"vayer-electric-backend/handler"
+	"vayer-electric-backend/logging"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
+	"go.uber.org/zap"
 )
 
-var httpPort = env.PORT
+var (
+	httpPort = env.PORT
+	log      = logging.GetLogger()
+)
 
 // Returns a context to be the main context of the app.
 // It's canceled once a syscall.SIGINT or syscall.SIGTERM is received.
@@ -29,7 +34,7 @@ func getMainContext() context.Context {
 		signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
 		exitSignal := <-signals
-		fmt.Printf(fmt.Sprintf("received %s shutting down", exitSignal.String()))
+		log.Info(fmt.Sprintf("received %s shutting down", exitSignal.String()))
 
 		cancel()
 	}()
@@ -40,7 +45,7 @@ func getMainContext() context.Context {
 func main() {
 	// TODO: add a adecuate logger
 
-	defer func() { fmt.Printf("bye") }()
+	defer func() { log.Info("bye") }()
 
 	mainCtx := getMainContext()
 
@@ -94,16 +99,16 @@ func main() {
 	})
 
 	if err := server.StartListening(mainCtx); err != nil {
-		fmt.Printf("server failed to start")
+		log.Error("error starting server", zap.Error(err))
 		return
 	}
 
-	fmt.Printf("started")
+	log.Info(fmt.Sprintf("server listening on port %d", httpPort))
 
 	defer func() {
-		fmt.Printf("server stopping")
+		log.Info("stopping server")
 		server.Shutdown()
-		fmt.Printf("server stopped")
+		log.Info("server stopped")
 	}()
 
 	<-mainCtx.Done()
