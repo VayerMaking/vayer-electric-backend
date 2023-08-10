@@ -87,6 +87,10 @@ func main() {
 			r.Put("/{id}", handler.UpdateSubcategory())
 			r.Delete("/{id}", handler.DeleteSubcategory())
 		})
+		r.Route("/images", func(r chi.Router) {
+			r.Get("/{name}", handler.ServeProductImage())
+		})
+
 	})
 
 	if err := server.StartListening(mainCtx); err != nil {
