@@ -74,8 +74,8 @@ func (s DbSource) InsertProduct(name string, description string, subcategory_id 
 	return err
 }
 
-func (s DbSource) UpdateProduct(id int, name string, description string, subcategory_id int, price float64, currentInventory int, image string, brand string, sku string) error {
-	_, err := s.conn.Exec("UPDATE product SET name = $1, description = $2, subcategory_id = $3, price = $4, current_inventory = $5, image = $6, brand = $7, sku = $8, updated_at = $9 WHERE id = $10", name, description, subcategory_id, price, currentInventory, image, brand, sku, time.Now(), id)
+func (s DbSource) UpdateProduct(id int, name string, price float64, currentInventory int) error {
+	_, err := s.conn.Exec("UPDATE product SET name = $1, price = $2, current_inventory = $3 WHERE id = $4", name, price, currentInventory, id)
 	defer s.conn.Close()
 	return err
 }

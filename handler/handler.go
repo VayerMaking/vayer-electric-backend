@@ -12,6 +12,7 @@ import (
 	"vayer-electric-backend/logging"
 
 	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 )
 
 var (
@@ -673,16 +674,12 @@ func UpdateProduct() http.HandlerFunc {
 			return
 		}
 
+		id := chi.URLParam(r, "id")
+
 		var body struct {
-			Id               string `json:"id"`
-			Name             string `json:"name"`
-			Description      string `json:"description"`
-			SubcategoryId    string `json:"subcategory_id"`
-			Price            string `json:"price"`
-			CurrentInventory string `json:"current_inventory"`
-			Image            string `json:"image"`
-			Brand            string `json:"brand"`
-			SKU              string `json:"sku"`
+			Name             string  `json:"name"`
+			Price            float64 `json:"price"`
+			CurrentInventory int     `json:"current_inventory"`
 		}
 		if err := json.Unmarshal(raw, &body); err != nil {
 			log.Error(err.Error())
@@ -691,25 +688,11 @@ func UpdateProduct() http.HandlerFunc {
 		}
 
 		// Trim input
-		body.Id = strings.TrimSpace(body.Id)
 		body.Name = strings.TrimSpace(body.Name)
-		body.Description = strings.TrimSpace(body.Description)
-		body.SubcategoryId = strings.TrimSpace(body.SubcategoryId)
-		body.Price = strings.TrimSpace(body.Price)
-		body.CurrentInventory = strings.TrimSpace(body.CurrentInventory)
-		body.Image = strings.TrimSpace(body.Image)
-		body.Brand = strings.TrimSpace(body.Brand)
-		body.SKU = strings.TrimSpace(body.SKU)
 
-		id := body.Id
 		name := body.Name
-		description := body.Description
-		subcategoryId := body.SubcategoryId
 		price := body.Price
 		currentInventory := body.CurrentInventory
-		image := body.Image
-		brand := body.Brand
-		sku := body.SKU
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -724,28 +707,9 @@ func UpdateProduct() http.HandlerFunc {
 			return
 		}
 
-		parsedSubcategoryCategoryId, err := strconv.Atoi(subcategoryId)
+		log.Info("Updating product with id: ", zap.Int("id", parsedId), zap.String("name", name), zap.Float64("price", price), zap.Int("current_inventory", currentInventory))
 
-		if err != nil {
-			log.Error(err.Error())
-			return
-		}
-
-		parsedPrice, err := strconv.ParseFloat(price, 64)
-
-		if err != nil {
-			log.Error(err.Error())
-			return
-		}
-
-		parsedCurrentInventory, err := strconv.Atoi(currentInventory)
-
-		if err != nil {
-			log.Error(err.Error())
-			return
-		}
-
-		err = dbs.UpdateProduct(parsedId, name, description, parsedSubcategoryCategoryId, parsedPrice, parsedCurrentInventory, image, brand, sku)
+		err = dbs.UpdateProduct(parsedId, name, price, currentInventory)
 
 		if err != nil {
 			log.Error(err.Error())
