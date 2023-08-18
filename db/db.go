@@ -87,7 +87,7 @@ func (s DbSource) DeleteProduct(id int) error {
 }
 
 func (s DbSource) GetProducts() ([]structs.Product, error) {
-	rows, err := s.conn.Query("SELECT * FROM product")
+	rows, err := s.conn.Query("SELECT * FROM product ORDER BY created_at DESC")
 
 	if err != nil {
 		log.Error(err.Error())
